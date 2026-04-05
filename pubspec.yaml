@@ -1,0 +1,67 @@
+name: myfinance_tracker
+description: MyFinance Tracker - Personal Finance Manager
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # Database
+  sqflite: ^2.3.3+1
+  path: ^1.9.0
+
+  # State Management
+  provider: ^6.1.2
+
+  # Charts
+  fl_chart: ^0.68.0
+
+  # Settings persistence
+  shared_preferences: ^2.3.2
+
+  # Biometric authentication
+  local_auth: ^2.3.0
+
+  # PDF export
+  pdf: ^3.11.1
+  printing: ^5.13.1
+
+  # Date/time formatting
+  intl: ^0.19.0
+
+  # Receipt photo
+  image_picker: ^1.1.2
+
+  # File system
+  path_provider: ^2.1.4
+  file_picker: ^8.1.2
+
+  # Calendar widget
+  table_calendar: ^3.1.2
+
+  # Local notifications
+  flutter_local_notifications: ^17.2.2
+
+  # Unique IDs
+  uuid: ^4.5.0
+
+  # CSV export
+  csv: ^6.0.0
+
+  # Permissions
+  permission_handler: ^11.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
