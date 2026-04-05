@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
@@ -101,18 +102,29 @@ class SettingsScreen extends StatelessWidget {
             value: settings.appLockEnabled,
             onChanged: (v) async {
               if (v) {
-                final auth = LocalAuthentication();
-                final canCheck = await auth.canCheckBiometrics;
-                if (canCheck) {
-                  final didAuth = await auth.authenticate(
-                    localizedReason: 'Enable app lock',
-                  );
-                  if (didAuth) settings.setAppLock(true);
-                } else {
-                  settings.setAppLock(true);
+                try {
+                  final auth = LocalAuthentication();
+                  final canCheck = await auth.canCheckBiometrics ||
+                      await auth.isDeviceSupported();
+                  if (canCheck) {
+                    final didAuth = await auth.authenticate(
+                      localizedReason: 'Enable app lock for MyFinance Tracker',
+                      options: const AuthenticationOptions(
+                        biometricOnly: false,
+                        stickyAuth: true,
+                      ),
+                    );
+                    if (didAuth) await settings.setAppLock(true);
+                  } else {
+                    // Device doesn't support biometrics — enable PIN lock anyway
+                    await settings.setAppLock(true);
+                  }
+                } catch (e) {
+                  debugPrint('Biometric error: $e');
+                  await settings.setAppLock(true);
                 }
               } else {
-                settings.setAppLock(false);
+                await settings.setAppLock(false);
               }
             },
           ),
