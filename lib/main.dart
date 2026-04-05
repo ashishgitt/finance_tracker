@@ -15,19 +15,35 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  SystemChrome.setPreferredOrientations([
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
 
-  // Init notifications
-  const AndroidInitializationSettings androidInit =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
-  const InitializationSettings initSettings =
-      InitializationSettings(android: androidInit);
-  await flutterLocalNotificationsPlugin.initialize(initSettings);
+  // Init notifications safely — don't crash app if this fails
+  try {
+    const AndroidInitializationSettings androidInit =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const InitializationSettings initSettings =
+        InitializationSettings(android: androidInit);
+    await flutterLocalNotificationsPlugin.initialize(initSettings);
+
+    // Create notification channel (required for Android 8.0+)
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'myfinance_main_channel',
+      'MyFinance Notifications',
+      description: 'Budget alerts and daily reminders',
+      importance: Importance.high,
+    );
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+  } catch (e) {
+    debugPrint('Notification init error (non-fatal): $e');
+  }
 
   runApp(
     MultiProvider(
