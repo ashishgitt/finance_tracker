@@ -21,36 +21,32 @@ dependencies:
   # Charts
   fl_chart: ^0.68.0
 
-  # Settings persistence
+  # Settings
   shared_preferences: ^2.3.2
 
-  # Biometric authentication
+  # Biometric
   local_auth: ^2.3.0
 
-  # PDF export
-  pdf: ^3.11.1
-  printing: ^5.13.1
-
-  # Date/time formatting
+  # Date formatting
   intl: ^0.19.0
 
-  # Receipt photo
+  # Photo picker
   image_picker: ^1.1.2
 
   # File system
   path_provider: ^2.1.4
   file_picker: ^8.1.2
 
-  # Calendar widget
+  # Calendar
   table_calendar: ^3.1.2
 
-  # Local notifications
+  # Notifications
   flutter_local_notifications: ^17.2.2
 
   # Unique IDs
   uuid: ^4.5.0
 
-  # CSV export
+  # CSV
   csv: ^6.0.0
 
   # Permissions
