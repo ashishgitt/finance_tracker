@@ -24,10 +24,17 @@ dependencies:
   # Settings
   shared_preferences: ^2.3.2
 
+<<<<<<< HEAD
   # Biometric
   local_auth: ^2.3.0
 
   # Date formatting
+=======
+  # Biometric / App Lock
+  local_auth: ^2.3.0
+
+  # Date/time
+>>>>>>> 98623ae (updating with some fixes and cc pages)
   intl: ^0.19.0
 
   # Photo picker
@@ -40,8 +47,14 @@ dependencies:
   # Calendar
   table_calendar: ^3.1.2
 
+<<<<<<< HEAD
   # Notifications
+=======
+  # Notifications + timezone
+>>>>>>> 98623ae (updating with some fixes and cc pages)
   flutter_local_notifications: ^17.2.2
+  timezone: ^0.9.4
+  flutter_timezone: ^1.0.4
 
   # Unique IDs
   uuid: ^4.5.0
@@ -51,6 +64,19 @@ dependencies:
 
   # Permissions
   permission_handler: ^11.3.1
+
+  # PDF export
+  pdf: ^3.11.1
+  printing: ^5.13.1
+
+  # Excel export
+  excel: ^4.0.6
+
+  # Share sheet
+  share_plus: ^10.0.2
+
+  # App info (About page)
+  package_info_plus: ^8.1.1
 
 dev_dependencies:
   flutter_test:

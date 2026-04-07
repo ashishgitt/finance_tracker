@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+<<<<<<< HEAD
+=======
+    <!-- Storage / Camera -->
+>>>>>>> 98623ae (updating with some fixes and cc pages)
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+<<<<<<< HEAD
+=======
+
+    <!-- Biometric / App Lock -->
+>>>>>>> 98623ae (updating with some fixes and cc pages)
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
@@ -12,6 +21,9 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Networking (needed by some plugin resource loading) -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
@@ -40,6 +52,10 @@
             </intent-filter>
         </activity>
 
+<<<<<<< HEAD
+=======
+        <!-- flutter_local_notifications -->
+>>>>>>> 98623ae (updating with some fixes and cc pages)
         <receiver android:exported="false"
             android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>
         <receiver android:exported="false"
@@ -54,6 +70,10 @@
         <receiver android:exported="false"
             android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver"/>
 
+<<<<<<< HEAD
+=======
+        <!-- FileProvider for image_picker / file_picker / share_plus -->
+>>>>>>> 98623ae (updating with some fixes and cc pages)
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

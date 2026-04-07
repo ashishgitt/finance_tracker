@@ -12,7 +12,6 @@ class TransactionProvider extends ChangeNotifier {
   List<TransactionModel> get filtered => _filtered;
   bool get isLoading => _isLoading;
 
-  // ─── CRUD ─────────────────────────────────────────────────────
   Future<void> loadAll() async {
     _isLoading = true;
     notifyListeners();
@@ -23,13 +22,29 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addTransaction(TransactionModel t) async {
+  Future<void> addTransaction(TransactionModel t,
+      {List<String> labelNames = const []}) async {
     await _db.insertTransaction(t.toMap());
+    if (labelNames.isNotEmpty) {
+      final labelIds = <String>[];
+      for (final name in labelNames) {
+        final id = await _db.insertOrGetLabel(name);
+        labelIds.add(id);
+      }
+      await _db.setTransactionLabels(t.id, labelIds);
+    }
     await loadAll();
   }
 
-  Future<void> updateTransaction(TransactionModel t) async {
+  Future<void> updateTransaction(TransactionModel t,
+      {List<String> labelNames = const []}) async {
     await _db.updateTransaction(t.toMap());
+    final labelIds = <String>[];
+    for (final name in labelNames) {
+      final id = await _db.insertOrGetLabel(name);
+      labelIds.add(id);
+    }
+    await _db.setTransactionLabels(t.id, labelIds);
     await loadAll();
   }
 
@@ -38,32 +53,33 @@ class TransactionProvider extends ChangeNotifier {
     await loadAll();
   }
 
-  // ─── Monthly data ─────────────────────────────────────────────
-  Future<List<TransactionModel>> getByMonth(int month, int year) async {
+  Future<List<String>> getLabelsForTransaction(String id) =>
+      _db.getLabelsForTransaction(id);
+
+  Future<List<TransactionModel>> getByMonth(
+      int month, int year) async {
     final rows = await _db.getTransactionsByMonth(month, year);
     return rows.map((r) => TransactionModel.fromMap(r)).toList();
   }
 
-  Future<List<TransactionModel>> getByDateRange(DateTime start, DateTime end) async {
-    final s = '${start.year}-${start.month.toString().padLeft(2,'0')}-${start.day.toString().padLeft(2,'0')}';
-    final e = '${end.year}-${end.month.toString().padLeft(2,'0')}-${end.day.toString().padLeft(2,'0')}';
+  Future<List<TransactionModel>> getByDateRange(
+      DateTime start, DateTime end) async {
+    final s = _fmt(start);
+    final e = _fmt(end);
     final rows = await _db.getTransactionsByDateRange(s, e);
     return rows.map((r) => TransactionModel.fromMap(r)).toList();
   }
 
   Future<List<TransactionModel>> getByDate(DateTime date) async {
-    final d = '${date.year}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}';
-    final rows = await _db.getTransactionsByDate(d);
+    final rows = await _db.getTransactionsByDate(_fmt(date));
     return rows.map((r) => TransactionModel.fromMap(r)).toList();
   }
 
-  // ─── Search ───────────────────────────────────────────────────
   Future<List<TransactionModel>> search(String query) async {
     final rows = await _db.searchTransactions(query);
     return rows.map((r) => TransactionModel.fromMap(r)).toList();
   }
 
-  // ─── Filter (in-memory) ───────────────────────────────────────
   void applyFilter({
     String? type,
     String? categoryId,
@@ -75,16 +91,19 @@ class TransactionProvider extends ChangeNotifier {
     String? query,
   }) {
     _filtered = _all.where((t) {
-      if (type != null && type.isNotEmpty && t.type != type) return false;
-      if (categoryId != null && categoryId.isNotEmpty && t.categoryId != categoryId) return false;
-      if (paymentMode != null && paymentMode.isNotEmpty && t.paymentMode != paymentMode) return false;
+      if (type != null && type.isNotEmpty && t.type != type)
+        return false;
+      if (categoryId != null &&
+          categoryId.isNotEmpty &&
+          t.categoryId != categoryId) return false;
+      if (paymentMode != null &&
+          paymentMode.isNotEmpty &&
+          t.paymentMode != paymentMode) return false;
       if (minAmount != null && t.amount < minAmount) return false;
       if (maxAmount != null && t.amount > maxAmount) return false;
-      if (fromDate != null && t.date.compareTo(
-              '${fromDate.year}-${fromDate.month.toString().padLeft(2,'0')}-${fromDate.day.toString().padLeft(2,'0')}') < 0)
+      if (fromDate != null && t.date.compareTo(_fmt(fromDate)) < 0)
         return false;
-      if (toDate != null && t.date.compareTo(
-              '${toDate.year}-${toDate.month.toString().padLeft(2,'0')}-${toDate.day.toString().padLeft(2,'0')}') > 0)
+      if (toDate != null && t.date.compareTo(_fmt(toDate)) > 0)
         return false;
       if (query != null && query.isNotEmpty) {
         final q = query.toLowerCase();
@@ -101,14 +120,17 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ─── Analytics Helpers ────────────────────────────────────────
-  double totalIncome(List<TransactionModel> txns) =>
-      txns.where((t) => t.type == 'income').fold(0, (s, t) => s + t.amount);
+  // ─── Analytics ────────────────────────────────────────────────
+  double totalIncome(List<TransactionModel> txns) => txns
+      .where((t) => t.type == 'income')
+      .fold(0, (s, t) => s + t.amount);
 
-  double totalExpense(List<TransactionModel> txns) =>
-      txns.where((t) => t.type == 'expense').fold(0, (s, t) => s + t.amount);
+  double totalExpense(List<TransactionModel> txns) => txns
+      .where((t) => t.type == 'expense')
+      .fold(0, (s, t) => s + t.amount);
 
-  Map<String, double> categoryBreakdown(List<TransactionModel> txns, String type) {
+  Map<String, double> categoryBreakdown(
+      List<TransactionModel> txns, String type) {
     final Map<String, double> map = {};
     for (final t in txns.where((t) => t.type == type)) {
       map[t.categoryId] = (map[t.categoryId] ?? 0) + t.amount;
@@ -116,7 +138,8 @@ class TransactionProvider extends ChangeNotifier {
     return map;
   }
 
-  Map<String, double> dailyBreakdown(List<TransactionModel> txns, String type) {
+  Map<String, double> dailyBreakdown(
+      List<TransactionModel> txns, String type) {
     final Map<String, double> map = {};
     for (final t in txns.where((t) => t.type == type)) {
       map[t.date] = (map[t.date] ?? 0) + t.amount;
@@ -124,32 +147,47 @@ class TransactionProvider extends ChangeNotifier {
     return map;
   }
 
-  // Recent transactions (last 10)
-  List<TransactionModel> get recentTransactions => _all.take(10).toList();
+  List<TransactionModel> get recentTransactions =>
+      _all.take(10).toList();
 
-  // Today's total expense
   double todayExpense() {
-    final today = DateTime.now();
-    final d = '${today.year}-${today.month.toString().padLeft(2,'0')}-${today.day.toString().padLeft(2,'0')}';
-    return _all.where((t) => t.date == d && t.type == 'expense').fold(0, (s, t) => s + t.amount);
+    final d = _fmt(DateTime.now());
+    return _all
+        .where((t) => t.date == d && t.type == 'expense')
+        .fold(0, (s, t) => s + t.amount);
   }
 
-  // This month totals
   double thisMonthIncome() {
-    final now = DateTime.now();
-    final txns = _all.where((t) {
-      return t.date.startsWith('${now.year}-${now.month.toString().padLeft(2,'0')}') &&
-          t.type == 'income';
-    });
-    return txns.fold(0, (s, t) => s + t.amount);
+    final prefix = _monthPrefix(DateTime.now());
+    return _all
+        .where((t) =>
+            t.date.startsWith(prefix) && t.type == 'income')
+        .fold(0, (s, t) => s + t.amount);
   }
 
   double thisMonthExpense() {
-    final now = DateTime.now();
-    final txns = _all.where((t) {
-      return t.date.startsWith('${now.year}-${now.month.toString().padLeft(2,'0')}') &&
-          t.type == 'expense';
-    });
-    return txns.fold(0, (s, t) => s + t.amount);
+    final prefix = _monthPrefix(DateTime.now());
+    return _all
+        .where((t) =>
+            t.date.startsWith(prefix) && t.type == 'expense')
+        .fold(0, (s, t) => s + t.amount);
   }
+
+  /// Returns total spent in a category in the current month
+  /// (including the newly-added transaction already in DB)
+  double categorySpendThisMonth(String categoryId) {
+    final prefix = _monthPrefix(DateTime.now());
+    return _all
+        .where((t) =>
+            t.type == 'expense' &&
+            t.categoryId == categoryId &&
+            t.date.startsWith(prefix))
+        .fold(0, (s, t) => s + t.amount);
+  }
+
+  String _fmt(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  String _monthPrefix(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}';
 }

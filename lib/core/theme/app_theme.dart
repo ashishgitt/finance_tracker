@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 
+// Fix 1: NavigationBar label font size prevents "Transactions" wrapping
+NavigationBarThemeData _navBarTheme() =>
+    NavigationBarThemeData(
+      labelBehavior:
+          NavigationDestinationLabelBehavior.alwaysShow,
+      labelTextStyle: WidgetStateProperty.all(
+        const TextStyle(
+            fontSize: 10, fontWeight: FontWeight.w500),
+      ),
+      height: 62,
+    );
+
 class AppTheme {
   static ThemeData light() => ThemeData(
         useMaterial3: true,
@@ -8,20 +20,22 @@ class AppTheme {
           seedColor: AppConstants.primarySeed,
           brightness: Brightness.light,
         ),
-        navigationBarTheme: const NavigationBarThemeData(
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        ),
+        navigationBarTheme: _navBarTheme(),
         cardTheme: CardTheme(
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16)),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12)),
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16, vertical: 14),
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16)),
         ),
       );
 
@@ -31,20 +45,22 @@ class AppTheme {
           seedColor: AppConstants.primarySeed,
           brightness: Brightness.dark,
         ),
-        navigationBarTheme: const NavigationBarThemeData(
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        ),
+        navigationBarTheme: _navBarTheme(),
         cardTheme: CardTheme(
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16)),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12)),
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16, vertical: 14),
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16)),
         ),
       );
 
@@ -52,15 +68,16 @@ class AppTheme {
     final base = dark();
     return base.copyWith(
       scaffoldBackgroundColor: Colors.black,
-      colorScheme: base.colorScheme.copyWith(surface: Colors.black, background: Colors.black),
-      navigationBarTheme: const NavigationBarThemeData(
+      colorScheme:
+          base.colorScheme.copyWith(surface: Colors.black),
+      navigationBarTheme: _navBarTheme().copyWith(
         backgroundColor: Colors.black,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
       cardTheme: CardTheme(
         color: const Color(0xFF0A0A0A),
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16)),
       ),
     );
   }

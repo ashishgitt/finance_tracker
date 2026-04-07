@@ -3,6 +3,7 @@ class TransactionModel {
   final double amount;
   final String type; // 'income' | 'expense'
   final String categoryId;
+  final String? subCategoryId;
   final String date; // yyyy-MM-dd
   final String? note;
   final String paymentMode;
@@ -10,12 +11,15 @@ class TransactionModel {
   final String? recurrenceType;
   final String? receiptImage;
   final String createdAt;
+  // Labels are loaded separately (junction table)
+  final List<String> labels;
 
   TransactionModel({
     required this.id,
     required this.amount,
     required this.type,
     required this.categoryId,
+    this.subCategoryId,
     required this.date,
     this.note,
     this.paymentMode = 'Cash',
@@ -23,6 +27,7 @@ class TransactionModel {
     this.recurrenceType,
     this.receiptImage,
     required this.createdAt,
+    this.labels = const [],
   });
 
   Map<String, dynamic> toMap() => {
@@ -30,6 +35,7 @@ class TransactionModel {
         'amount': amount,
         'type': type,
         'category_id': categoryId,
+        'sub_category_id': subCategoryId,
         'date': date,
         'note': note,
         'payment_mode': paymentMode,
@@ -39,18 +45,22 @@ class TransactionModel {
         'created_at': createdAt,
       };
 
-  factory TransactionModel.fromMap(Map<String, dynamic> m) => TransactionModel(
-        id: m['id'],
+  factory TransactionModel.fromMap(Map<String, dynamic> m,
+      {List<String>? labels}) =>
+      TransactionModel(
+        id: m['id'] as String,
         amount: (m['amount'] as num).toDouble(),
-        type: m['type'],
-        categoryId: m['category_id'],
-        date: m['date'],
-        note: m['note'],
-        paymentMode: m['payment_mode'] ?? 'Cash',
-        isRecurring: (m['is_recurring'] ?? 0) == 1,
-        recurrenceType: m['recurrence_type'],
-        receiptImage: m['receipt_image'],
-        createdAt: m['created_at'],
+        type: m['type'] as String,
+        categoryId: m['category_id'] as String,
+        subCategoryId: m['sub_category_id'] as String?,
+        date: m['date'] as String,
+        note: m['note'] as String?,
+        paymentMode: (m['payment_mode'] as String?) ?? 'Cash',
+        isRecurring: (m['is_recurring'] as int? ?? 0) == 1,
+        recurrenceType: m['recurrence_type'] as String?,
+        receiptImage: m['receipt_image'] as String?,
+        createdAt: m['created_at'] as String,
+        labels: labels ?? const [],
       );
 
   TransactionModel copyWith({
@@ -58,6 +68,7 @@ class TransactionModel {
     double? amount,
     String? type,
     String? categoryId,
+    String? subCategoryId,
     String? date,
     String? note,
     String? paymentMode,
@@ -65,12 +76,14 @@ class TransactionModel {
     String? recurrenceType,
     String? receiptImage,
     String? createdAt,
+    List<String>? labels,
   }) =>
       TransactionModel(
         id: id ?? this.id,
         amount: amount ?? this.amount,
         type: type ?? this.type,
         categoryId: categoryId ?? this.categoryId,
+        subCategoryId: subCategoryId ?? this.subCategoryId,
         date: date ?? this.date,
         note: note ?? this.note,
         paymentMode: paymentMode ?? this.paymentMode,
@@ -78,5 +91,6 @@ class TransactionModel {
         recurrenceType: recurrenceType ?? this.recurrenceType,
         receiptImage: receiptImage ?? this.receiptImage,
         createdAt: createdAt ?? this.createdAt,
+        labels: labels ?? this.labels,
       );
 }
